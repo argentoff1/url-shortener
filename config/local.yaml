@@ -1,0 +1,6 @@
+env: "local" # local, dev, prod для понимания где запускается проект
+storage-path: "./storage/storage.db"
+http_server:
+  address: "localhost:8082"
+  timeout: 4s # время на чтение запроса и отправку ответа
+  idle_timeout: 60s # время жизни соединения с клиентом
