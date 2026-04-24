@@ -4,6 +4,8 @@ import (
 	"log/slog"
 	"os"
 	"url-shortener/internal/config"
+	"url-shortener/internal/lib/logger/sl"
+	"url-shortener/internal/storage/sqlite"
 )
 
 const (
@@ -17,18 +19,24 @@ func main() {
 	// TODO: init config: cleanenv
 	cfg := config.MustLoad()
 
-	// TODO: init logger: slog
+	// TODO: init logger: sl
 	log := setupLogger(cfg.Env)
 
 	// Постоянный вывод наименования окружения при запуске
-	// log = log.With(slog.String("env", cfg.Env))
+	// log = log.With(sl.String("env", cfg.Env))
 
 	// Будет выведено какое окружение используется при запуске программы
-	log.Info("starting url-shortener", slog.String("env", cfg.Env))
-	log.Debug("debug messages are enabled")
+	log.Info("Запуск url-shortener", slog.String("env", cfg.Env))
+	log.Debug("debug сообщения включены")
 
 	// TODO: init storage: sqlite
-
+	storage, err := sqlite.New(cfg.StoragePath)
+	if err != nil {
+		// Собственная функция Err для slog
+		log.Error("Инициализация БД провалена", sl.Err(err))
+		os.Exit(1)
+	}
+	_ = storage
 	// TODO: init router: chi, "chi render"
 
 	// TODO: run server
