@@ -1,11 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 	"url-shortener/internal/config"
 	"url-shortener/internal/lib/logger/sl"
-	"url-shortener/internal/storage/sqlite"
+	"url-shortener/internal/storage/mysql"
 )
 
 const (
@@ -29,8 +30,9 @@ func main() {
 	log.Info("Запуск url-shortener", slog.String("env", cfg.Env))
 	log.Debug("debug сообщения включены")
 
-	// TODO: init storage: sqlite
-	storage, err := sqlite.New(cfg.StoragePath)
+	// TODO: init storage: mysql
+	fmt.Println(cfg.StoragePath)
+	storage, err := mysql.New()
 	if err != nil {
 		// Собственная функция Err для slog
 		log.Error("Инициализация БД провалена", sl.Err(err))
