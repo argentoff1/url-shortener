@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 	"url-shortener/internal/config"
@@ -36,20 +37,11 @@ func main() {
 		log.Error("Инициализация БД провалена", sl.Err(err))
 		os.Exit(1)
 	}
-
-	id, err := storage.SaveURL("https://google.com", "google")
+	url, err := storage.GetURL("googl")
 	if err != nil {
-		log.Error("Не удалось сохранить URL", sl.Err(err))
-		os.Exit(1)
+		log.Error("Не удалось получить URL", sl.Err(err))
 	}
-	log.Info("сохраненный url", slog.Int64("id", id))
-
-	id, err = storage.SaveURL("https://google.com", "google")
-	if err != nil {
-		log.Error("Не удалось сохранить URL", sl.Err(err))
-		os.Exit(1)
-	}
-	_ = storage
+	fmt.Println(url)
 	// TODO: init router: chi, "chi render"
 
 	// TODO: run server
