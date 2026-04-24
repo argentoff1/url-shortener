@@ -11,7 +11,7 @@ import (
 type Config struct {
 	Env string `yaml:"env" env-default:"local"`
 	// При ошибке можно удалить env-required:"true"
-	StoragePath string `yaml:"storage_path" env-required:"true"`
+	StoragePath string `yaml:"storage_path"`
 	HTTPServer  `yaml:"http_server"`
 }
 
