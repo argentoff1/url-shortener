@@ -11,12 +11,11 @@ type Storage struct {
 	db *sql.DB
 }
 
-func New(storagePath string) (*Storage, error) {
+func New(dsn string) (*Storage, error) {
 	// Храним имя функции в которой произошла ошибка
 	const op = "storage.mysql.New"
 
-	db, openErr := sql.Open("mysql",
-		"root:root@tcp(127.0.0.1:3306)/url_shortener")
+	db, openErr := sql.Open("mysql", dsn)
 	if openErr != nil {
 		return nil, fmt.Errorf("%s: %w", op, openErr)
 	}

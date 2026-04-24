@@ -11,8 +11,13 @@ import (
 type Config struct {
 	Env string `yaml:"env" env-default:"local"`
 	// При ошибке можно удалить env-required:"true"
-	StoragePath string `yaml:"storage_path"`
-	HTTPServer  `yaml:"http_server"`
+	Database   `yaml:"database"`
+	HTTPServer `yaml:"http_server"`
+}
+
+type Database struct {
+	Driver string `yaml:"driver" env-default:"mysql"`
+	Dsn    string `yaml:"dsn"`
 }
 
 type HTTPServer struct {

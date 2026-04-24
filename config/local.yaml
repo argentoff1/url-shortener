@@ -1,5 +1,7 @@
 env: "local" # local, dev, prod для понимания где запускается проект
-storage-path: "./storage/storage.db"
+database:
+  driver: "mysql"
+  dsn: "root:root@tcp(127.0.0.1:3306)/url_shortener" # data source name
 http_server:
   address: "localhost:8082"
   timeout: 4s # время на чтение запроса и отправку ответа

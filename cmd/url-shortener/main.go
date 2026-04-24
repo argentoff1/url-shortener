@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 	"url-shortener/internal/config"
@@ -17,10 +16,10 @@ const (
 
 // Файл, который запускает программу
 func main() {
-	// TODO: init config: cleanenv
+	// init config: cleanenv
 	cfg := config.MustLoad()
 
-	// TODO: init logger: sl
+	// init logger: sl
 	log := setupLogger(cfg.Env)
 
 	// Постоянный вывод наименования окружения при запуске
@@ -31,8 +30,7 @@ func main() {
 	log.Debug("debug сообщения включены")
 
 	// TODO: init storage: mysql
-	fmt.Println(cfg.StoragePath)
-	storage, err := mysql.New(cfg.StoragePath)
+	storage, err := mysql.New(cfg.Dsn)
 	if err != nil {
 		// Собственная функция Err для slog
 		log.Error("Инициализация БД провалена", sl.Err(err))
