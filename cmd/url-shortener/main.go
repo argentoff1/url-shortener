@@ -32,7 +32,7 @@ func main() {
 
 	// TODO: init storage: mysql
 	fmt.Println(cfg.StoragePath)
-	storage, err := mysql.New()
+	storage, err := mysql.New(cfg.StoragePath)
 	if err != nil {
 		// Собственная функция Err для slog
 		log.Error("Инициализация БД провалена", sl.Err(err))

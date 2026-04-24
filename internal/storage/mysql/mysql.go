@@ -11,7 +11,7 @@ type Storage struct {
 	db *sql.DB
 }
 
-func New() (*Storage, error) {
+func New(storagePath string) (*Storage, error) {
 	// Храним имя функции в которой произошла ошибка
 	const op = "storage.mysql.New"
 
