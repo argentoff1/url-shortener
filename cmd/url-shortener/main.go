@@ -36,6 +36,19 @@ func main() {
 		log.Error("Инициализация БД провалена", sl.Err(err))
 		os.Exit(1)
 	}
+
+	id, err := storage.SaveURL("https://google.com", "google")
+	if err != nil {
+		log.Error("Не удалось сохранить URL", sl.Err(err))
+		os.Exit(1)
+	}
+	log.Info("сохраненный url", slog.Int64("id", id))
+
+	id, err = storage.SaveURL("https://google.com", "google")
+	if err != nil {
+		log.Error("Не удалось сохранить URL", sl.Err(err))
+		os.Exit(1)
+	}
 	_ = storage
 	// TODO: init router: chi, "chi render"
 
