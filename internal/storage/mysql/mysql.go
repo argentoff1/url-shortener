@@ -106,3 +106,32 @@ func (s *Storage) GetURL(alias string) (string, error) {
 
 	return resURL, nil
 }
+
+// DeleteURL - удаление записи из БД
+func (s *Storage) DeleteURL(alias string) error {
+	const op = "storage.mysql.DeleteURL"
+
+	stmt, err := s.db.Prepare(`DELETE FROM url WHERE alias = ?`)
+	if err != nil {
+		return fmt.Errorf("%s: prepare statement: %w", op, err)
+	}
+
+	res, err := stmt.Exec(alias)
+	if err != nil {
+		fmt.Printf("Error during Exec: %+v\n", err)
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1054 {
+			return fmt.Errorf("%s: %w", op, storage.ErrURLNotFound)
+		}
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	deletedRows, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	if deletedRows == 0 {
+		return fmt.Errorf("%s: %w", op, storage.ErrURLNotFound)
+	}
+
+	return nil
+}

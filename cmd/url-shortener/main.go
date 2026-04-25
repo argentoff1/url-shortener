@@ -15,7 +15,6 @@ const (
 	envProd  = "prod"
 )
 
-// Файл, который запускает программу
 func main() {
 	// init config: cleanenv
 	cfg := config.MustLoad()
@@ -37,11 +36,21 @@ func main() {
 		log.Error("Инициализация БД провалена", sl.Err(err))
 		os.Exit(1)
 	}
+
+	// Создание записи в БД
+	_, err = storage.SaveURL("https://youtube.com", "youtube")
+
+	// Тест метода GetURL, !!!!!!!!!!!!УБРАТЬ!!!!!!!!!!
 	url, err := storage.GetURL("googl")
 	if err != nil {
 		log.Error("Не удалось получить URL", sl.Err(err))
 	}
 	fmt.Println(url)
+
+	err = storage.DeleteURL("googl")
+	if err != nil {
+		log.Error("Не удалось удалить данные", sl.Err(err))
+	}
 	// TODO: init router: chi, "chi render"
 
 	// TODO: run server
