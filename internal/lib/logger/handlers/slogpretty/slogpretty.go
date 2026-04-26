@@ -77,7 +77,7 @@ func (h *PrettyHandler) Handle(_ context.Context, r slog.Record) error {
 		timeStr,
 		level,
 		msg,
-		color.WhiteString(string(b)),
+		color.GreenString(string(b)),
 	)
 
 	return nil
