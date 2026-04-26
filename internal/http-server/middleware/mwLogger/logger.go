@@ -12,7 +12,7 @@ func New(log *slog.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		// Создание копии логгера для middleware
 		log = log.With(
-			slog.String("component", "middleware/mwLogger"),
+			slog.String("component", "middleware/logger"),
 		)
 
 		log.Info("mwLogger middleware enabled")

@@ -1,10 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"url-shortener/internal/config"
+	"url-shortener/internal/http-server/handlers/url/save"
 	"url-shortener/internal/http-server/middleware/mwLogger"
 	"url-shortener/internal/lib/logger/handlers/slogpretty"
 	"url-shortener/internal/lib/logger/sl"
@@ -42,22 +43,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Создание записи в БД
-	_, err = storage.SaveURL("https://youtube.com", "youtube")
-
-	// Тест метода GetURL, !!!!!!!!!!!!УБРАТЬ!!!!!!!!!!
-	url, err := storage.GetURL("google")
-	if err != nil {
-		log.Error("Не удалось получить URL", sl.Err(err))
-	}
-	fmt.Println(url)
-
-	err = storage.DeleteURL("googl")
-	if err != nil {
-		log.Error("Не удалось удалить данные", sl.Err(err))
-	}
-
-	// TODO: init router: chi, "chi render"
+	// init router: chi
 	router := chi.NewRouter()
 
 	// Middleware
@@ -69,7 +55,24 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	// TODO: run server
+	router.Post("/url", save.New(log, storage))
+
+	// run server
+	log.Info("Запуск сервера", slog.String("address", cfg.Address))
+
+	server := &http.Server{
+		Addr:         cfg.Address,
+		Handler:      router,
+		ReadTimeout:  cfg.HTTPServer.Timeout,
+		WriteTimeout: cfg.HTTPServer.Timeout,
+		IdleTimeout:  cfg.HTTPServer.IdleTimeout,
+	}
+
+	if err := server.ListenAndServe(); err != nil {
+		log.Error("Не удалось запустить сервер")
+	}
+
+	log.Error("Сервер остановлен")
 }
 
 func setupLogger(env string) *slog.Logger {
