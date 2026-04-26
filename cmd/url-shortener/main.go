@@ -6,6 +6,7 @@ import (
 	"os"
 	"url-shortener/internal/config"
 	"url-shortener/internal/http-server/middleware/mwLogger"
+	"url-shortener/internal/lib/logger/handlers/slogpretty"
 	"url-shortener/internal/lib/logger/sl"
 	"url-shortener/internal/storage/mysql"
 
@@ -23,14 +24,14 @@ func main() {
 	// init config: cleanenv
 	cfg := config.MustLoad()
 
-	// init mwLogger: sl
+	// init logger: sl
 	log := setupLogger(cfg.Env)
 
 	// Постоянный вывод наименования окружения при запуске
 	// log = log.With(sl.String("env", cfg.Env))
 
 	// Будет выведено какое окружение используется при запуске программы
-	log.Info("Запуск url-shortener", slog.String("env", cfg.Env))
+	log.Info("Запуск url-shortener", slog.String("env", cfg.Env), slog.String("version", "0.1"))
 	log.Debug("debug сообщения включены")
 
 	// init storage: mysql
@@ -45,7 +46,7 @@ func main() {
 	_, err = storage.SaveURL("https://youtube.com", "youtube")
 
 	// Тест метода GetURL, !!!!!!!!!!!!УБРАТЬ!!!!!!!!!!
-	url, err := storage.GetURL("googl")
+	url, err := storage.GetURL("google")
 	if err != nil {
 		log.Error("Не удалось получить URL", sl.Err(err))
 	}
@@ -77,8 +78,7 @@ func setupLogger(env string) *slog.Logger {
 	// Реализация разного уровня логирования для определенных окружений
 	switch env {
 	case envLocal:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+		log = setupPrettySlog()
 	case envDev:
 		log = slog.New(
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
@@ -88,4 +88,16 @@ func setupLogger(env string) *slog.Logger {
 	}
 
 	return log
+}
+
+func setupPrettySlog() *slog.Logger {
+	opts := slogpretty.PrettyHandlerOptions{
+		SlogOpts: &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		},
+	}
+
+	handler := opts.NewPrettyHandler(os.Stdout)
+
+	return slog.New(handler)
 }
