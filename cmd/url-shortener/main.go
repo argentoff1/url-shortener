@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"url-shortener/internal/config"
+	"url-shortener/internal/http-server/handlers/redirect"
 	"url-shortener/internal/http-server/handlers/url/save"
 	"url-shortener/internal/http-server/middleware/mwLogger"
 	"url-shortener/internal/lib/logger/handlers/slogpretty"
@@ -32,7 +33,11 @@ func main() {
 	// log = log.With(sl.String("env", cfg.Env))
 
 	// Будет выведено какое окружение используется при запуске программы
-	log.Info("Запуск url-shortener", slog.String("env", cfg.Env), slog.String("version", "0.1"))
+	log.Info(
+		"Запуск url-shortener",
+		slog.String("env", cfg.Env),
+		slog.String("version", "0.1"),
+	)
 	log.Debug("debug сообщения включены")
 
 	// init storage: mysql
@@ -56,6 +61,7 @@ func main() {
 	router.Use(middleware.URLFormat)
 
 	router.Post("/url", save.New(log, storage))
+	router.Get("/{alias}", redirect.New(log, storage))
 
 	// run server
 	log.Info("Запуск сервера", slog.String("address", cfg.Address))
