@@ -30,7 +30,7 @@ type Response struct {
 
 //go:generate go run github.com/vektra/mockery/v2@v2.28.2 --name=UrlUpdater
 type UrlUpdater interface {
-	UpdateURL(newAlias string, oldAlias string) error
+	UpdateURL(oldAlias string, newAlias string) error
 }
 
 /*
@@ -76,7 +76,7 @@ func New(log *slog.Logger, urlUpdater UrlUpdater) http.HandlerFunc {
 		oldAlias := req.OldAlias
 		newAlias := req.NewAlias
 
-		err = urlUpdater.UpdateURL(newAlias, oldAlias)
+		err = urlUpdater.UpdateURL(oldAlias, newAlias)
 		if errors.Is(err, storage.ErrAliasNotFound) {
 			log.Info("alias не найден", slog.String("url", req.OldAlias))
 

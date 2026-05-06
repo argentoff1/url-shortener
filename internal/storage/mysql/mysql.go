@@ -136,7 +136,7 @@ func (s *Storage) DeleteURL(alias string) error {
 	return nil
 }
 
-func (s *Storage) UpdateURL(newAlias string, oldAlias string) error {
+func (s *Storage) UpdateURL(oldAlias string, newAlias string) error {
 	const op = "storage.mysql.UpdateURL"
 
 	stmt, err := s.db.Prepare(`UPDATE url SET alias = ? WHERE alias = ?`)

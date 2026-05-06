@@ -37,7 +37,7 @@ func New(log *slog.Logger, deleter URLDeleter) http.HandlerFunc {
 		if alias == "" {
 			log.Info("alias пустой")
 
-			render.JSON(w, r, resp.Error("неверный запрос"))
+			render.JSON(w, r, resp.Error("Поле alias обязательное для заполнения"))
 
 			return
 		}
