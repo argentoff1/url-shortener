@@ -7,7 +7,7 @@ import (
 	"url-shortener/internal/storage"
 
 	"github.com/go-sql-driver/mysql"
-	_ "github.com/go-sql-driver/mysql" // инициализация mysql драйвера
+	_ "github.com/go-sql-driver/mysql" // Инициализация mysql драйвера
 )
 
 type Storage struct {
@@ -130,6 +130,36 @@ func (s *Storage) DeleteURL(alias string) error {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 	if deletedRows == 0 {
+		return fmt.Errorf("%s: %w", op, storage.ErrURLNotFound)
+	}
+
+	return nil
+}
+
+func (s *Storage) UpdateURL(newAlias string, oldAlias string) error {
+	const op = "storage.mysql.UpdateURL"
+
+	stmt, err := s.db.Prepare(`UPDATE url SET alias = ? WHERE alias = ?`)
+	if err != nil {
+		return fmt.Errorf("%s: prepare statement: %w", op, err)
+	}
+
+	res, err := stmt.Exec(newAlias, oldAlias)
+	if err != nil {
+		fmt.Printf("Error during Exec: %+v\n", err)
+
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1054 {
+			return fmt.Errorf("%s: %w", op, storage.ErrURLNotFound)
+		}
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	affectedRows, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	fmt.Printf("Affected rows: %d\n", affectedRows)
+	if affectedRows == 0 {
 		return fmt.Errorf("%s: %w", op, storage.ErrURLNotFound)
 	}
 

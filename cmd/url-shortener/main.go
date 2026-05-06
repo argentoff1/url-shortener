@@ -6,6 +6,7 @@ import (
 	"os"
 	"url-shortener/internal/config"
 	"url-shortener/internal/http-server/handlers/redirect"
+	"url-shortener/internal/http-server/handlers/update"
 	"url-shortener/internal/http-server/handlers/url/delete"
 	"url-shortener/internal/http-server/handlers/url/save"
 	"url-shortener/internal/http-server/middleware/mwLogger"
@@ -63,7 +64,8 @@ func main() {
 
 	router.Post("/url", save.New(log, storage))
 	router.Get("/{alias}", redirect.New(log, storage))
-	router.Delete("/delete/{alias}", delete.New(log, storage))
+	router.Delete("/url/{alias}", delete.New(log, storage))
+	router.Put("/update", update.New(log, storage))
 
 	// run server
 	log.Info("Запуск сервера", slog.String("address", cfg.Address))
