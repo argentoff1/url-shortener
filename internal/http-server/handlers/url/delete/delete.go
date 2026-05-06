@@ -1,4 +1,4 @@
-package redirect
+package delete
 
 import (
 	"errors"
@@ -13,17 +13,20 @@ import (
 	"github.com/go-chi/render"
 )
 
-// URLGetter - интерфейс для получения url по alias.
-//
-//go:generate go run github.com/vektra/mockery/v2@v2.28.2 --name=URLGetter
-type URLGetter interface {
-	GetURL(alias string) (string, error)
+type Response struct {
+	resp.Response
 }
 
-// New - выполняется переадресация на url, который принадлежит alias
-func New(log *slog.Logger, urlGetter URLGetter) http.HandlerFunc {
+// URLDeleter - интерфейс для удаления записи из БД по alias
+//
+//go:generate go run github.com/vektra/mockery/v2@v2.28.2 --name=URLDeleter
+type URLDeleter interface {
+	DeleteURL(alias string) error
+}
+
+func New(log *slog.Logger, deleter URLDeleter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "handlers.url.redirect.New"
+		const op = "handlers.url.delete.New"
 
 		log := log.With(
 			slog.String("op", op),
@@ -39,25 +42,30 @@ func New(log *slog.Logger, urlGetter URLGetter) http.HandlerFunc {
 			return
 		}
 
-		resURL, err := urlGetter.GetURL(alias)
-		if errors.Is(err, storage.ErrURLNotFound) {
+		resultErr := deleter.DeleteURL(alias)
+		if errors.Is(resultErr, storage.ErrURLNotFound) {
 			log.Info("url не найден", "alias", alias)
 
 			render.JSON(w, r, resp.Error("url не найден"))
 
 			return
 		}
-		if err != nil {
-			log.Error("невозможно получить url", sl.Err(err))
+		if resultErr != nil {
+			log.Error("невозможно удалить url", sl.Err(resultErr))
 
 			render.JSON(w, r, resp.Error("внутренняя ошибка"))
 
 			return
 		}
 
-		log.Info("url получен", slog.String("url", resURL))
+		log.Info("url удалён", "alias", alias)
 
-		// redirect на найденный url
-		http.Redirect(w, r, resURL, http.StatusFound)
+		responseOK(w, r)
 	}
+}
+
+func responseOK(w http.ResponseWriter, r *http.Request) {
+	render.JSON(w, r, Response{
+		Response: resp.OK(),
+	})
 }
