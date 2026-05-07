@@ -118,7 +118,6 @@ func (s *Storage) DeleteURL(alias string) error {
 
 	res, err := stmt.Exec(alias)
 	if err != nil {
-		fmt.Printf("Error during Exec: %+v\n", err)
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1054 {
 			return fmt.Errorf("%s: %w", op, storage.ErrURLNotFound)
@@ -146,8 +145,6 @@ func (s *Storage) UpdateURL(oldAlias string, newAlias string) error {
 
 	res, err := stmt.Exec(newAlias, oldAlias)
 	if err != nil {
-		fmt.Printf("Error during Exec: %+v\n", err)
-
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1054 {
 			return fmt.Errorf("%s: %w", op, storage.ErrURLNotFound)
@@ -158,10 +155,13 @@ func (s *Storage) UpdateURL(oldAlias string, newAlias string) error {
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
-	fmt.Printf("Affected rows: %d\n", affectedRows)
 	if affectedRows == 0 {
 		return fmt.Errorf("%s: %w", op, storage.ErrURLNotFound)
 	}
 
 	return nil
+}
+
+func (s *Storage) Close() error {
+	return s.db.Close()
 }

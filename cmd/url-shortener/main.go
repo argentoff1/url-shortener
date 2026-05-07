@@ -91,6 +91,8 @@ func main() {
 	}
 
 	log.Error("Сервер остановлен")
+
+	defer storage.Close()
 }
 
 func setupLogger(env string) *slog.Logger {

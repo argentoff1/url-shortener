@@ -3,6 +3,7 @@ package redirect
 import (
 	"net/http/httptest"
 	"testing"
+	"url-shortener/internal/storage"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
@@ -26,6 +27,17 @@ func TestRedirectHandler(t *testing.T) {
 			alias: "test_alias",
 			url:   "https://www.google.com/",
 		},
+		{
+			name:      "Alias not found",
+			alias:     "non_existing",
+			mockError: storage.ErrURLNotFound,
+			respError: "url не найден",
+		},
+		{
+			name:      "Empty alias",
+			alias:     "",
+			respError: "неверный запрос",
+		},
 	}
 
 	for _, tc := range cases {
@@ -43,10 +55,16 @@ func TestRedirectHandler(t *testing.T) {
 			ts := httptest.NewServer(r)
 			defer ts.Close()
 
+			// Если ожидается ошибка — проверяем что редиректа нет
+			if tc.respError != "" {
+				_, err := api.GetRedirect(ts.URL + "/" + tc.alias)
+				require.ErrorIs(t, err, api.ErrInvalidStatusCode)
+				return
+			}
+
+			// Если ошибки нет — проверяем редирект
 			redirectedToURL, err := api.GetRedirect(ts.URL + "/" + tc.alias)
 			require.NoError(t, err)
-
-			// Check the final URL after redirection.
 			assert.Equal(t, tc.url, redirectedToURL)
 		})
 	}

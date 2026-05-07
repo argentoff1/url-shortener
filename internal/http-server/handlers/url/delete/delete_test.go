@@ -95,7 +95,6 @@ func TestDeleteHandler(t *testing.T) {
 			rr := httptest.NewRecorder()
 
 			if tc.useRouter {
-				r := chi.NewRouter()
 				r.Delete("/url/{alias}", New(slogdiscard.NewDiscardLogger(), urlDeleterMock))
 				r.ServeHTTP(rr, req)
 			} else {

@@ -39,6 +39,7 @@ func TestNewRandomString(t *testing.T) {
 
 			assert.Len(t, str1, tt.size)
 			assert.Len(t, str2, tt.size)
+			assert.NotEqual(t, str1, str2)
 		})
 	}
 }
